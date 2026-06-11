@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Calculator App | JS Mini Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1e2a3a 0%, #0f1724 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, sans-serif;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: rgba(22, 32, 42, 0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 48px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            padding: 24px 20px 28px 20px;
+            width: 100%;
+            max-width: 400px;
+            transition: transform 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .calculator:hover {
+            transform: scale(1.01);
+        }
+
+        .display {
+            background: #0b1219;
+            border-radius: 32px;
+            padding: 20px 24px;
+            margin-bottom: 28px;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.05);
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .previous-operand {
+            min-height: 32px;
+            font-size: 1.25rem;
+            color: #8ea3bb;
+            text-align: right;
+            letter-spacing: 0.5px;
+            font-weight: 400;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .current-operand {
+            font-size: 3rem;
+            font-weight: 600;
+            color: #f0f3f8;
+            text-align: right;
+            line-height: 1.2;
+            margin-top: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            word-break: break-word;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            background: #1e2f3c;
+            border: none;
+            padding: 18px 0;
+            border-radius: 28px;
+            font-size: 1.45rem;
+            font-weight: 600;
+            color: #eef4ff;
+            cursor: pointer;
+            transition: all 0.15s linear;
+            font-family: 'Inter', monospace;
+            box-shadow: 0 5px 0 #0a1117;
+            letter-spacing: 1px;
+            backdrop-filter: blur(4px);
+            border: 0.5px solid rgba(255, 255, 255, 0.08);
+        }
+
+        button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #0a1117;
+        }
+
+        .span-two {
+            grid-column: span 2;
+        }
+
+        .function-btn {
+            background: #2d4456;
+            color: #ffde9c;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .operator-btn {
+            background: #f39c12;
+            color: #1e2a36;
+            font-size: 1.8rem;
+            font-weight: 700;
+            box-shadow: 0 5px 0 #b46f0a;
+        }
+
+        .operator-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #b46f0a;
+        }
+
+        .equals-btn {
+            background: #2ecc71;
+            color: #0c1e2a;
+            font-size: 1.8rem;
+            font-weight: 800;
+            box-shadow: 0 5px 0 #1f8f4c;
+        }
+
+        .equals-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #1f8f4c;
+        }
+
+        .clear-btn {
+            background: #e67e22;
+            color: white;
+            font-weight: bold;
+        }
+
+        @media (max-width: 450px) {
+            .calculator {
+                padding: 18px 16px 22px;
+            }
+            button {
+                padding: 14px 0;
+                font-size: 1.3rem;
+            }
+            .current-operand {
+                font-size: 2.4rem;
+            }
+            .previous-operand {
+                font-size: 1rem;
+            }
+            .buttons {
+                gap: 10px;
+            }
+        }
+
+        .credit {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: #7e95ae;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div class="calculator">
+        <div class="display">
+            <div class="previous-operand" id="previousOperand"></div>
+            <div class="current-operand" id="currentOperand">0</div>
+        </div>
+        <div class="buttons">
+            <button class="function-btn clear-btn" data-action="clear">AC</button>
+            <button class="function-btn" data-action="delete">DEL</button>
+            <button class="function-btn" data-action="percent">%</button>
+            <button class="operator-btn" data-operator="/">÷</button>
+
+            <button data-number="7">7</button>
+            <button data-number="8">8</button>
+            <button data-number="9">9</button>
+            <button class="operator-btn" data-operator="*">×</button>
+
+            <button data-number="4">4</button>
+            <button data-number="5">5</button>
+            <button data-number="6">6</button>
+            <button class="operator-btn" data-operator="-">−</button>
+
+            <button data-number="1">1</button>
+            <button data-number="2">2</button>
+            <button data-number="3">3</button>
+            <button class="operator-btn" data-operator="+">+</button>
+
+            <button data-number="0" class="span-two">0</button>
+            <button data-number=".">.</button>
+            <button class="equals-btn" data-equals>=</button>
+        </div>
+        <div class="credit">
+            ⚡ JavaScript Calculator | DOM Manipulation | Bubble Sound
+        </div>
+    </div>
+</div>
+
+<!-- ========== SOUND ELEMENT - Using your pop sound ========== -->
+<audio id="clickSound" preload="auto">
+    <source src="sounds/pop.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    const previousOperandEl = document.getElementById('previousOperand');
+    const currentOperandEl = document.getElementById('currentOperand');
+
+    let currentOperand = '0';
+    let previousOperand = '';
+    let operation = null;
+    let shouldResetScreen = false;
+
+    // ========== SOUND FUNCTION - Using your pop.mp3 ==========
+    let soundEnabled = false;
+    let clickSound = null;
+
+    function initSound() {
+        clickSound = document.getElementById('clickSound');
+        if (clickSound) {
+            clickSound.volume = 0.3;  // 30% volume - adjust as needed
+            console.log('✅ Sound loaded! Looking for: sounds/pop.mp3');
+        } else {
+            console.log('❌ Sound element not found!');
+        }
+    }
+
+    function playSound() {
+        if (!soundEnabled) return;
+        if (!clickSound) {
+            clickSound = document.getElementById('clickSound');
+            if (!clickSound) return;
+        }
+        clickSound.currentTime = 0;  // Reset to start for rapid clicks
+        clickSound.play().catch(e => console.log('Sound error:', e));
+    }
+
+    // Enable sound on first click anywhere (required by browsers)
+    document.addEventListener('click', function enableSound() {
+        if (soundEnabled) return;
+        soundEnabled = true;
+        console.log('🔊 Sound enabled! Playing pop sound on button clicks.');
+        // Play a quick test sound
+        playSound();
+        // Remove listener after first click
+        document.removeEventListener('click', enableSound);
+    });
+    // ========== END SOUND FUNCTION ==========
+
+    function updateDisplay() {
+        let displayCurrent = currentOperand === '' ? '0' : currentOperand;
+        currentOperandEl.innerText = displayCurrent;
+        
+        if (operation !== null && previousOperand !== '') {
+            let opSymbol = '';
+            if (operation === '+') opSymbol = '+';
+            else if (operation === '-') opSymbol = '-';
+            else if (operation === '*') opSymbol = '×';
+            else if (operation === '/') opSymbol = '÷';
+            previousOperandEl.innerText = `${previousOperand} ${opSymbol}`;
+        } else {
+            if (previousOperand !== '' && !shouldResetScreen) {
+                previousOperandEl.innerText = previousOperand;
+            } else {
+                previousOperandEl.innerText = '';
+            }
+        }
+        if (previousOperand === '' && operation === null) {
+            previousOperandEl.innerText = '';
+        }
+    }
+
+    function formatNumber(numberStr) {
+        if (numberStr === '') return '';
+        if (numberStr === '.') return '0.';
+        let parts = numberStr.split('.');
+        if (parts.length > 2) {
+            numberStr = parts[0] + '.' + parts.slice(1).join('');
+        }
+        if (numberStr.indexOf('.') !== -1) {
+            let integerPart = numberStr.split('.')[0];
+            let decimalPart = numberStr.split('.')[1];
+            if (integerPart.length > 1 && integerPart[0] === '0') {
+                integerPart = integerPart.replace(/^0+/, '');
+                if (integerPart === '') integerPart = '0';
+                numberStr = integerPart + '.' + decimalPart;
+            }
+        } else {
+            if (numberStr.length > 1 && numberStr[0] === '0') {
+                numberStr = numberStr.replace(/^0+/, '');
+                if (numberStr === '') numberStr = '0';
+            }
+        }
+        if (numberStr === '') return '0';
+        return numberStr;
+    }
+
+    function appendNumber(number) {
+        playSound();  // 🎵 POP SOUND
+        if (shouldResetScreen) {
+            currentOperand = '';
+            shouldResetScreen = false;
+        }
+        if (currentOperand.length >= 16 && !currentOperand.includes('.')) return;
+        
+        if (number === '.') {
+            if (currentOperand.includes('.')) return;
+            if (currentOperand === '') {
+                currentOperand = '0.';
+            } else {
+                currentOperand += '.';
+            }
+        } else {
+            if (currentOperand === '0' && number !== '.') {
+                currentOperand = number.toString();
+            } else {
+                currentOperand += number.toString();
+            }
+        }
+        currentOperand = formatNumber(currentOperand);
+        updateDisplay();
+    }
+
+    function deleteLast() {
+        playSound();  // 🎵 POP SOUND
+        if (shouldResetScreen) {
+            currentOperand = '0';
+            shouldResetScreen = false;
+            updateDisplay();
+            return;
+        }
+        if (currentOperand.length === 1 || (currentOperand.length === 2 && currentOperand.startsWith('-'))) {
+            currentOperand = '0';
+        } else {
+            currentOperand = currentOperand.slice(0, -1);
+            if (currentOperand === '' || currentOperand === '-') currentOperand = '0';
+        }
+        currentOperand = formatNumber(currentOperand);
+        updateDisplay();
+    }
+
+    function clearAll() {
+        playSound();  // 🎵 POP SOUND
+        currentOperand = '0';
+        previousOperand = '';
+        operation = null;
+        shouldResetScreen = false;
+        updateDisplay();
+    }
+
+    function percentage() {
+        playSound();  // 🎵 POP SOUND
+        if (currentOperand === '') return;
+        let num = parseFloat(currentOperand);
+        if (isNaN(num)) return;
+        let percentValue = num / 100;
+        currentOperand = percentValue.toString();
+        currentOperand = formatNumber(currentOperand);
+        updateDisplay();
+    }
+
+    function computeResult() {
+        if (operation === null || previousOperand === '' || currentOperand === '') return null;
+        let prev = parseFloat(previousOperand);
+        let curr = parseFloat(currentOperand);
+        if (isNaN(prev) || isNaN(curr)) return null;
+        
+        let result;
+        switch (operation) {
+            case '+':
+                result = prev + curr;
+                break;
+            case '-':
+                result = prev - curr;
+                break;
+            case '*':
+                result = prev * curr;
+                break;
+            case '/':
+                if (curr === 0) {
+                    return 'Error';
+                }
+                result = prev / curr;
+                break;
+            default:
+                return null;
+        }
+        if (typeof result === 'number') {
+            result = parseFloat(result.toFixed(8));
+            if (Number.isInteger(result)) {
+                return result.toString();
+            } else {
+                return result.toString();
+            }
+        }
+        return result;
+    }
+
+    function chooseOperator(op) {
+        playSound();  // 🎵 POP SOUND
+        if (currentOperand === '' && previousOperand !== '' && operation !== null) {
+            operation = op;
+            updateDisplay();
+            return;
+        }
+        
+        if (operation !== null && previousOperand !== '' && currentOperand !== '' && !shouldResetScreen) {
+            let computed = computeResult();
+            if (computed === 'Error') {
+                clearAll();
+                currentOperand = 'Math Error';
+                updateDisplay();
+                setTimeout(() => clearAll(), 1200);
+                return;
+            }
+            if (computed !== null) {
+                previousOperand = computed;
+                currentOperand = '';
+                operation = op;
+                updateDisplay();
+                shouldResetScreen = false;
+                return;
+            }
+        }
+        
+        if (currentOperand !== '') {
+            previousOperand = currentOperand;
+            currentOperand = '';
+            operation = op;
+            shouldResetScreen = false;
+            updateDisplay();
+        }
+    }
+
+    function evaluate() {
+        playSound();  // 🎵 POP SOUND
+        if (operation === null || previousOperand === '' || currentOperand === '') {
+            return;
+        }
+        let result = computeResult();
+        if (result === 'Error') {
+            clearAll();
+            currentOperand = '∞ Error';
+            updateDisplay();
+            setTimeout(() => clearAll(), 1300);
+            return;
+        }
+        if (result !== null) {
+            let resultStr = result.toString();
+            if (resultStr.includes('.')) {
+                resultStr = parseFloat(resultStr).toString();
+            }
+            currentOperand = resultStr;
+            previousOperand = '';
+            operation = null;
+            shouldResetScreen = true;
+            updateDisplay();
+        } else {
+            if (currentOperand === '' && previousOperand !== '') {
+                currentOperand = previousOperand;
+                previousOperand = '';
+                operation = null;
+                updateDisplay();
+            }
+        }
+    }
+
+    function handleKeyboard(e) {
+        const key = e.key;
+        if (/[0-9]/.test(key)) {
+            e.preventDefault();
+            playSound();  // 🎵 POP SOUND for keyboard
+            appendNumber(key);
+        }
+        else if (key === '.') {
+            e.preventDefault();
+            playSound();  // 🎵 POP SOUND
+            appendNumber('.');
+        }
+        else if (key === '+' || key === '-' || key === '*' || key === '/') {
+            e.preventDefault();
+            playSound();  // 🎵 POP SOUND
+            let mappedOp = key;
+            if (key === '*') mappedOp = '*';
+            if (key === '/') mappedOp = '/';
+            chooseOperator(mappedOp);
+        }
+        else if (key === 'Enter' || key === '=') {
+            e.preventDefault();
+            playSound();  // 🎵 POP SOUND
+            evaluate();
+        }
+        else if (key === 'Backspace') {
+            e.preventDefault();
+            playSound();  // 🎵 POP SOUND
+            deleteLast();
+        }
+        else if (key === 'Escape' || key === 'Delete') {
+            e.preventDefault();
+            playSound();  // 🎵 POP SOUND
+            clearAll();
+        }
+        else if (key === '%') {
+            e.preventDefault();
+            playSound();  // 🎵 POP SOUND
+            percentage();
+        }
+    }
+
+    function bindEvents() {
+        const numberBtns = document.querySelectorAll('[data-number]');
+        numberBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const number = btn.getAttribute('data-number');
+                appendNumber(number);
+            });
+        });
+        
+        const operatorBtns = document.querySelectorAll('[data-operator]');
+        operatorBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const op = btn.getAttribute('data-operator');
+                chooseOperator(op);
+            });
+        });
+        
+        const equalsBtn = document.querySelector('[data-equals]');
+        if (equalsBtn) {
+            equalsBtn.addEventListener('click', () => {
+                evaluate();
+            });
+        }
+        
+        const clearBtn = document.querySelector('[data-action="clear"]');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => clearAll());
+        }
+        
+        const delBtn = document.querySelector('[data-action="delete"]');
+        if (delBtn) {
+            delBtn.addEventListener('click', () => deleteLast());
+        }
+        
+        const percentBtn = document.querySelector('[data-action="percent"]');
+        if (percentBtn) {
+            percentBtn.addEventListener('click', () => percentage());
+        }
+    }
+    
+    function initCalculator() {
+        initSound();  // Initialize sound
+        bindEvents();
+        window.addEventListener('keydown', handleKeyboard);
+        updateDisplay();
+    }
+    
+    initCalculator();
+    
+</script>
+</body>
+</html>
